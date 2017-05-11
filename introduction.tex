@@ -55,6 +55,17 @@ technique of fixing the root cause, as opposed to `papering over' issues,
 has led us to find a number of latent bugs that were undiscovered for many
 years.\cappos{fix} 
 
+The use of reproducible builds also provided other ancillary benefits.  Since
+it now becomes easy to determine when a change to part of the build toolchain
+causes a change, it is easier to detect when packages do not need to be 
+rebuilt.  For example, a new version of {\tt make} could be released, which
+is used to build {\tt gcc}.  If {\tt gcc} does not change, then packages
+that are built using {\tt gcc}, but not {\tt make} (or any package compiled
+using {\tt make}), need not be compiled.  \cappos{could use help with this 
+example.}  Furthermore, reproducible builds make the differences between
+binary versions of the same software much smaller, allowing diffs to help
+save repository bandwidth.
+
 The main contributions in this work are as follows:
 
 \begin{itemize}
@@ -76,6 +87,9 @@ lead to a lack of reproducibility in different places in the toolchain
 While, different choices have been made by different projects that perform 
 reproducible builds, we demonstrate that this enabled us to find an array
 of bugs that were missed by other efforts.
+
+\item We provide evidence that other ancillary benefits of reproducible
+builds also provide significant reasons to utilize such techniques.  
 
 %\item Using our experiences, we speculate about ways in which varying the
 %build environment may assist in finding new bugs across applications. 
@@ -101,7 +115,8 @@ what set of packages.  Using this context, Section XXX then does a deep
 dive into the more general bugs found when looking for reproducible
 build issues.  This shows situations where our philosophy of fixing bugs in
 the original source paid dividends in fixing important software flaws
-elsewhere.  
+elsewhere.  We then describe the ancillary bandwidth and build time
+benefits of using reproducible builds (Section XYZ).
 %Given more information about these bugs, Section Y describes
 %\sysname, a prototype that helps to automate exploration if one of these
 %types of bugs exists in an application's build.  

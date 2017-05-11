@@ -5,8 +5,52 @@
 
 \subsection{Reproducible builds}
 
-\cappos{clear definition, concepts, 2-4 paragraphs}
+According to (\cappos{cite
+https://reproducible-builds.org/docs/definition/}:
+A build is reproducible if given the same source code, build environment
+and build instructions, any party can recreate bit-by-bit identical copies
+of all specified artifacts.
+
+The relevant attributes of the build environment, the build instructions
+and the source code as well as the expected reproducible artifacts are
+defined by the authors or distributors. The artifacts of a build are the
+parts of the build results that are the desired primary output.
+
+
+Following that terminology, we also define:
+
+{\bf Source code} is usually a checkout from version control at a specific
+revision or a source code archive.
+
+{\bf Relevant attributes} of the build environment would usually include
+dependencies and their versions, build configuration flags and environment
+variables as far as they are used by the build system (eg. the locale). It
+is preferable to reduce this set of attributes.
+
+{\bf Artifacts} would include executables, distribution packages or filesystem
+images. They would not usually include build logs or similar ancillary
+outputs.
+
+The reproducibility of artifacts is {\bf verified} by bit-by-bit comparison. 
+This is usually performed using cryptographically secure hash functions.
+
+{\bf Authors or distributors} means parties that claim reproducibility of a 
+set of artifacts. These may be upstream authors, distribution maintainers or
+any other distributor.
+
+\cappos{text to consider integrating.  Entropy is a loaded term in academia, 
+so we would need to either be very careful with how we use it or rephrase it.}
+A "build process" is
+a complicated function that has a complicated output.  Ways to make that
+function deterministic include (1) fixing the input to the function
+(VM), (2) using a comparator that ignores some of the output bits
+(strip-nondeterminism), (3) changing the function so it is
+deterministic.  Intuitively, since (3) dives into the guts of the build
+process (in contrast to (1) and (2) which are more black-boxy), it is
+the most difficult/invasive, but also the most <handwave>correct</handwave>
+and the most rewarding.
 
 \subsection{What should be assumed about the build environment?}
 
 \cappos{3-4 paragraphs, itemized list}
+

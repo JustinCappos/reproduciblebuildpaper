@@ -20,17 +20,20 @@ share common temp files, caches, etc. \cappos{cite
 \url{https://bugzilla.opensuse.org/show_bug.cgi?id=1021353}
 \url{https://bugs.launchpad.net/intltool/+bug/1687644} }.  The issue is that the
 programs will either overwrite or corrupt each other's state, leading to
-errors in the binaries.  \cappos{What issues does this cause in the
+errors in the output files.  \cappos{What issues does this cause in the
 installed software?  Is there some sort of security / stability flaw in the
 eventual code?}
+In these two cases, this only affected manual pages, but it is possible that 
+similar flaws exist in code that produces executable output.
 
 Another way that race conditions cause issues deals with checking
 timestamps on files.  For example, a build script may start two different
 programs that check some property of timestamps and decide how to behave.
 For example, in the build script for {\tt python-bottle}, the Python2 and 
-Python3 build scripts are run concurrently.  However, if the Python2
-scripts complete in the same second they are started, the Python3 build
-scripts fail to run.  \cappos{why?}
+Python3 build scripts are run one after another.  However, if both the
+Python2 and Python3 build scripts complete within the same second the
+2nd install script will think it is already done, because the output file
+size and timestamp already have the expected value.
 
 \cappos{are there time-of-check-to-time-of-use bug or something else?}
 

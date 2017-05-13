@@ -63,8 +63,8 @@ causes a change, it is easier to detect when packages do not need to be
 rebuilt.  For example, a new version of {\tt make} could be released, which
 is used to build {\tt gcc}.  If {\tt gcc} does not change, then packages
 that are built using {\tt gcc}, but not {\tt make} (or any package compiled
-using {\tt make}), need not be compiled.  \cappos{could use help with this 
-example.}  Furthermore, reproducible builds make the differences between
+using {\tt make}), do need not to be needleessly recompiled.
+Furthermore, reproducible builds make the differences between
 binary versions of the same software much smaller, allowing diffs to help
 save repository bandwidth but moreover help in debugging deliberate changes
 between versions.

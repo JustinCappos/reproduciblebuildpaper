@@ -9,18 +9,38 @@ SOURCE\_DATE\_EPOCH, strip-nondeterminism, docker containers, reprotest, etc.
 
 \item {\tt SOURCE\_DATE\_EPOCH} is a distribution-agnostic standard for
 upstream build processes to consume a determinstic timestamp from packaging
-systems. It is a UNIX timestamp, defined as the number of seconds
+systems. This means that rather than using the system time, a packaging 
+system will use this timestamp instead.  This prevents each build system
+from using its own local time when building software.  
+\cappos{how does
+this deal with elapsed time?}
+
+{\tt SOURCE\_DATE\_EPOCH} is a UNIX timestamp, defined as the number of seconds
 (excluding leap seconds) since 01 Jan 1970 00:00:00 UTC and is exported via
 the through the operating system's usual environment mechanism. Under UNIX
-systems, it is available via the {\tt getenv(3)} system call.
+systems, it is available via the {\tt getenv(3)} system call.  
 \url{https://reproducible-builds.org/specs/source-date-epoch/}
+?Dozens? of popular build tools, including XX, YY, and ZZ, have been 
+modified to use {\tt SOURCE\_DATE\_EPOCH}.
 
 \item {\em diffoscope} is a recursive and content-aware diff utility used
 to locate and diagnose reproducibility issues. Unlike the traditional {\tt
-diff(1)} utility, {\em diffoscope} will try to get to the bottom of what
-makes files or directories different. It will recursively unpack archives
-of many kinds and transform various binary formats into more human readable
-form to compare them. It can compare two tarballs, ISO images, or PDF just
-as easily.
+diff(1)} utility which mostly focuses on determining if files differ, 
+{\em diffoscope} is optimized to help dig through differences that relate 
+to reproducible builds.  One major improvement is in the way that binary
+differences are handled.  Rather than just observing a difference,
+diffoscope parses the files in the appropriate format and understands the
+context of the change.  For example, differences in PDFs fields may be
+decoded to indicate that the difference is in the timestamp field.
+\cappos{fix?}
+
+Another major improvement is that diffoscope will recursively unpack 
+archives of many kinds.  Package formats are usually just standard archive
+formats, with additional fields that indicate metadata for the package.  In
+fact, many archive formats contain several archives, which can be nested
+inside each other.  For example, the {\tt foo.XXX.deb} Debian package has 
+an outer AR archive, with a ... \cappos{please make concrete}.  By
+recursively processing files, diffoscope can pinpoint that a difference is
+due to the XX inside of YY inside of ZZ in this package.
 
 \end{itemize}

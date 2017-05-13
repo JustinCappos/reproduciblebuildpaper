@@ -9,4 +9,6 @@ SOURCE\_DATE\_EPOCH, strip-nondeterminism, docker containers, reprotest, etc.
 
 \item {\tt SOURCE\_DATE\_EPOCH} is a distribution-agnostic standard for upstream build processes to consume a determinstic timestamp from packaging systems. It is a UNIX timestamp, defined as the number of seconds (excluding leap seconds) since 01 Jan 1970 00:00:00 UTC and is exported via the through the operating system's usual environment mechanism. Under UNIX systems, it is available via the {\tt getenv(3)} system call. \url{https://reproducible-builds.org/specs/source-date-epoch/}
 
+\item {\em diffoscope} is a recursive and content-aware diff utility used to locate and diagnose reproducibility issues. Unlike the traditional {\tt diff(1)} utility, {\em diffoscope} will try to get to the bottom of what makes files or directories different. It will recursively unpack archives of many kinds and transform various binary formats into more human readable form to compare them. It can compare two tarballs, ISO images, or PDF just as easily.
+
 \end{itemize}

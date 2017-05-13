@@ -27,8 +27,8 @@ they are all compromised in the same way.
 
 Surprisingly, very few pieces of software are built reproducibly without
 effort on behalf of the software maintainer or changes to the build system
-itself.  For example, no packages from Debian in 2015 would even
-produce identical binaries if the build process was run twice on the same
+itself.  For example, no packages from Debian in 2015 would 
+produce identical binaries, even if the build process was run twice on the same
 build system.  The reasons for this, which are described in more detail
 in Section X\cappos{fix}, in the majority of cases deal with the use
 of timestamps (5X\%), timezone information (3X\%), locale information
@@ -63,11 +63,11 @@ causes a change, it is easier to detect when packages do not need to be
 rebuilt.  For example, a new version of {\tt make} could be released, which
 is used to build {\tt gcc}.  If {\tt gcc} does not change, then packages
 that are built using {\tt gcc}, but not {\tt make} (or any package compiled
-using {\tt make}), do need not to be needleessly recompiled.
+using {\tt make}), do need not to be recompiled.
 Furthermore, reproducible builds make the differences between
 binary versions of the same software much smaller, allowing diffs to help
-save repository bandwidth but moreover help in debugging deliberate changes
-between versions.
+save repository bandwidth.  Furthermore, this also helps debugging, because
+changes between versions are easier to locate within binaries.
 
 The main contributions in this work are as follows:
 
@@ -93,6 +93,9 @@ of bugs that were missed by other efforts.
 
 \item We provide evidence that other ancillary benefits of reproducible
 builds also provide significant reasons to utilize such techniques.  
+Making builds reproducible locates bugs in other portions of the code,
+reduces the size of updates, speeds up the build process, and simplifies
+debugging.
 
 %\item Using our experiences, we speculate about ways in which varying the
 %build environment may assist in finding new bugs across applications. 

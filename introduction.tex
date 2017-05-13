@@ -17,8 +17,10 @@ As a response to these security concerns, there have been recent
 efforts to make \emph{reproducible builds} \cappos{cite}.  A reproducible
 build is one where two different parties with similar setups\footnote{we 
 will more precisely define this in Section X.\cappos{fix}} are able 
-to obtain bitwise identical binaries from the same source code
-\cappos{perhaps find an official definition instead}.  
+to obtain bitwise identical binaries from the same source code.
+A build is said to be \emph{reproducible} if given the same source code, build
+environment and build instructions, any party can recreate bit-by-bit identical
+copies of all specified artifacts.
 The idea is that if different parties are able to build the same binary
 from source, then either none of their build systems are compromised or
 they are all compromised in the same way.

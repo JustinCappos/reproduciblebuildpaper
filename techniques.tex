@@ -5,3 +5,8 @@
 SOURCE\_DATE\_EPOCH, strip-nondeterminism, docker containers, reprotest, etc.
 2-4 paragraphs per tool / technique}
 
+\begin{itemize}
+
+\item {\tt SOURCE\_DATE\_EPOCH} is a distribution-agnostic standard for upstream build processes to consume a determinstic timestamp from packaging systems. It is a UNIX timestamp, defined as the number of seconds (excluding leap seconds) since 01 Jan 1970 00:00:00 UTC and is exported via the through the operating system's usual environment mechanism. Under UNIX systems, it is available via the {\tt getenv(3)} system call. \url{https://reproducible-builds.org/specs/source-date-epoch/}
+
+\end{itemize}

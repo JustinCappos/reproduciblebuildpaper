@@ -17,9 +17,9 @@ This allows a particular source tree \cappos{DS: need to define a term for `sour
 \cappos{how does
 this deal with elapsed time?}
 
-{\tt SOURCE\_DATE\_EPOCH} is a UNIX timestamp, defined as the number of seconds
-(excluding leap seconds) since 01 Jan 1970 00:00:00 UTC and is exported via
-the through the operating system's usual environment mechanism. Under UNIX
+The value of {\tt SOURCE\_DATE\_EPOCH} is a UNIX timestamp, defined as the number of seconds
+(excluding leap seconds) since 01 Jan 1970 00:00:00 UTC, and is exported 
+through the operating system's usual environment mechanism. Under UNIX
 systems, it is available via the {\tt getenv(3)} system call.  
 \url{https://reproducible-builds.org/specs/source-date-epoch/}
 ?Dozens? of popular build tools, including XX, YY, and ZZ, have been 

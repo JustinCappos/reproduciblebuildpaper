@@ -9,9 +9,11 @@ SOURCE\_DATE\_EPOCH, strip-nondeterminism, docker containers, reprotest, etc.
 
 \item {\tt SOURCE\_DATE\_EPOCH} is a distribution-agnostic standard for
 upstream build processes to consume a determinstic timestamp from packaging
-systems. This means that rather than using the system time, a packaging 
-system will use this timestamp instead.  This prevents each build system
-from using its own local time when building software.  
+systems.
+Packaging systems set the environment variable \texttt{SOURCE\_DATE\_EPOCH} to the timestamp of the original public release of the source code being built,
+and build processes consume that value and use it instead of the system timestamp where appropriate,
+such as when embedding timestamps into user-visible portions of generated documentation.
+This allows a particular source tree \cappos{DS: need to define a term for `source package/archive'---meaning a `.tar.gz' or a tag---where `Artifact' is defined} to remain reproducible even if built on different dates.
 \cappos{how does
 this deal with elapsed time?}
 
@@ -22,6 +24,8 @@ systems, it is available via the {\tt getenv(3)} system call.
 \url{https://reproducible-builds.org/specs/source-date-epoch/}
 ?Dozens? of popular build tools, including XX, YY, and ZZ, have been 
 modified to use {\tt SOURCE\_DATE\_EPOCH}.
+
+\cappos{DS: something about `WW packages had build processes that would fail within their support lifetime, and have been fixed'---this makes developing/backporting vulnerability patches easier}
 
 \item {\em diffoscope} is a recursive and content-aware diff utility used
 to locate and diagnose reproducibility issues. Unlike the traditional {\tt

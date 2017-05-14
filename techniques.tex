@@ -19,8 +19,8 @@ this deal with elapsed time?}
 
 The value of {\tt SOURCE\_DATE\_EPOCH} is a UNIX timestamp, defined as the number of seconds
 (excluding leap seconds) since 01 Jan 1970 00:00:00 UTC, and is exported 
-through the operating system's usual environment mechanism. Under UNIX
-systems, it is available via the {\tt getenv(3)} system call.  
+through the operating system's usual environment mechanism.
+On C-based system, it is available via the {\tt getenv(3)} standard library function.
 \url{https://reproducible-builds.org/specs/source-date-epoch/}
 ?Dozens? of popular build tools, including XX, YY, and ZZ, have been 
 modified to use {\tt SOURCE\_DATE\_EPOCH}.

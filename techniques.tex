@@ -42,8 +42,15 @@ Another major improvement is that diffoscope will recursively unpack
 archives of many kinds.  Package formats are usually just standard archive
 formats, with additional fields that indicate metadata for the package.  In
 fact, many archive formats contain several archives, which can be nested
-inside each other.  For example, the {\tt foo.XXX.deb} Debian package has 
-an outer AR archive, with a ... \cappos{please make concrete}.  By
+inside each other.
+For example, the Hello World Debian package \texttt{hello\_2.10-1+b1\_amd64.deb} has an outer AR archive,
+which contains
+	a format file,
+	a gzip-compressed tarball containing metadata,
+	and an xzip-compressed tarball containing the files to be installed---%
+	some of which are themselves compressed.
+In larger packages, the files to be installed may include archive files, such as JAR or ISO files.
+By
 recursively processing files, diffoscope can pinpoint that a difference is
 due to the XX inside of YY inside of ZZ in this package.
 

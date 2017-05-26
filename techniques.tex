@@ -25,7 +25,42 @@ On C-based system, it is available via the {\tt getenv(3)} standard library func
 ?Dozens? of popular build tools, including XX, YY, and ZZ, have been 
 modified to use {\tt SOURCE\_DATE\_EPOCH}.
 
+The use of {\tt SOURCE\_DATE\_EPOCH} is a compromise solution that is not 
+universally loved by reproducible builds projects for a few reasons
+(cite https://wiki.debian.org/ReproducibleBuilds/StandardEnvironmentVariables 
+):
+First, it requires changes in the build system for different projects, which
+makes it difficult to gain adoption in some cases.  Instead it may be easier
+to simply have the build system omit information that leads to non-determinism.
+Second, this technique breaks build systems, because files will have the
+same timestamp (e.g., setting the system clock to some constant time T, 
+breaks various build tools such as GNU make).  Third, it also does not
+actually remove the irreproducibility issues.  Setting the system clock to 
+some constant time T at the start of the build, then letting it run normally, 
+does not achieve reproducibility in the cases where the build takes a 
+non-deterministic amount of time and something embeds ``the current time" 
+near the end of the build process.  Finally, mandating a specific start
+time or build path prevents parallel builds from being done without extra
+system-level support (e.g. virtualisation or separate kernel namespaces),
+and prevents users without permissions to use that path from verifying
+reproducibility.  Combined, these limitations make {\tt
+SOURCE\_DATE\_EPOCH} a solution with significant drawbacks.
+
 \cappos{DS: something about `WW packages had build processes that would fail within their support lifetime, and have been fixed'---this makes developing/backporting vulnerability patches easier}
+
+
+
+\item {\em strip-nondeterminism} is a tool that is run over the finished
+archives and image files that removes common sources of non-determinism.
+This includes timestamps and similar metadata from the files.  \cappos{need
+much more detail.}  The drawback of this is...
+
+\end{itemize}
+
+In addition, there are several tools that are used to aid efforts to make
+builds reproducible.
+
+\begin{itemize}
 
 \item {\em diffoscope} is a recursive and content-aware diff utility used
 to locate and diagnose reproducibility issues. Unlike the traditional {\tt
@@ -53,5 +88,26 @@ In larger packages, the files to be installed may include archive files, such as
 By
 recursively processing files, diffoscope can pinpoint that a difference is
 due to the XX inside of YY inside of ZZ in this package.
+
+\item {\em a .buildinfo file} captures information about the system
+environment in which a build is performed.  One obvious use of this
+information is to examine the environment a build happened in, perhaps for
+forensic purposes.  However, a {\tt .buildinfo} file may also be used to 
+recreate that build environment later.  This enables different users to
+build software in a reproducible manner, with the {\tt .buildinfo} as a
+guide.  \cappos{How do we clearly distinguish this from requiring something
+like {\tt SOURCE\_DATE\_EPOCH}?}
+
+It is also envisioned that the {\tt .buildinfo} file may have a variety of
+other uses in the future.  First, a debian user could elect to only install 
+binary packages that have been successfully built by multiple builders.
+\cappos{How does this work?  Are these files signed?}   Second, a {\tt
+.buildinfo} file could be used by a debian derivative to attest to the 
+packages it has deterministically rebuilt.  Third, a triage process could
+use {\tt .buildinfo} files to identify toolchain changes that have an effect on
+large numbers of binary packages (e.g., a backdoor in a commonly used
+library cite Xcode Ghost).  Finally, {\tt .buildinfo} files used as part 
+of a cross-building process could demonstrate the correctness of the
+cross-compiling toolchain by reproducing the exact binary artifacts.
 
 \end{itemize}

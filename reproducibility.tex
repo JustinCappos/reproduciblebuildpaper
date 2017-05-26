@@ -54,3 +54,203 @@ and the most rewarding.
 
 \cappos{3-4 paragraphs, itemized list}
 
+===================================
+Reproducibility and buildinfo files
+===================================
+
+WORK IN PROGRESS
+
+This is a plan for the moderately-far future and is not intended to block
+existing progress on buildinfo files that will not have the features discussed.
+
+Building software
+=================
+
+Where the world is now: Build products contain build-specific information.
+Often, the product is signed "for security", and sometimes this signature is
+embedded inside the build product.
+
+Where we want to get to: Build products are reproducible by *any* member of the
+public *entirely from source code*. Build-specific information is generated and
+stored separately. This includes cryptographic hashes of the build products and
+may be signed by the builder.
+
+The rest of the document will describe why this approach is superior.
+
+What is reproducibility
+=======================
+
+Build products, for us to classify them as "reproducible", *must* be exactly
+bit-for-bit identical. We cannot accept anything less than this, because it
+would greatly increase the cost of verifying identical *behaviour*. Suppose we
+wanted to write a "compare only behaviourial differences" program that e.g.
+ignores timestamps, hostnames, etc. Then,
+
+- New data formats with their own ideas of "trivial" will need to have this
+  logic incorporated into this program in the future. This is not scalable.
+
+- If we want to compose build products in different ways in the future (e.g. in
+  newer container formats, such as archives or installation media images), we
+  would have to extend this "comparison" tool to look inside those containers,
+  *even if* the containers themselves are bit-for-bit identical. This is not
+  scalable either.
+
+- For Turing-complete data formats, it is not possible to write a program even
+  in theory that says "behaves the same" or "behaves differently". For example,
+  a program could read its own timestamp and do different things according to
+  this value. So the result of our diff program would not actually mean
+  "behaves the same/different" but instead mean "behaves the same/different if
+  the source code doesn't do certain things". Granted, reproducibility is meant
+  to eventually help us verify source code behaviour, but tying this to the
+  output of our diff program tangles up separate concerns and greatly increases
+  the complexity and cost-of-reasoning of our entire system.
+
+- For data formats containing natural language such as documentation, a similar
+  argument to the above applies. For example, text could refer to the timestamp
+  embedded in the page footer and mean different things depending on its value.
+
+Therefore, no such automated "behavioural differences" tool can exist; there
+will always have to be some level of human review over its results - and each
+verifier must perform this themselves, otherwise it defeats the point. This is
+not scalable across the hundreds of thousands of released packages (including
+versions) in our FOSS ecosystem today that should all be reproducible. So, we
+firmly commit to bit-for-bit reproducibility, which is the only test that can
+be automated at scale.
+
+Degrees of reproducibility
+==========================
+
+Simply being able to reproduce a binary, even bit-for-bit identically, does not
+give us very much useful information. Let's introduce some thought experiments:
+
+**Thought experiment 1.** If we fork the universe at the start of a build, then
+the build output is reproducible in both cases.
+
+Therefore, everything is reproducible in some sense. This is not merely a
+pedantic example; setting parameters of a scenario to extreme values helps us
+identify the important parts of it. Let's reduce the extremity of the parameter
+a bit:
+
+**Thought experiment 2.** Assuming the build does not depend on information
+outside of the machine (network, entropy, IO), then if we clone the state of
+the machine (either via VM snapshot, or the atoms of the physical machine),
+then the build output is reproducible in both cases.
+
+Yes, we can reproduce a build by snapshotting a VM that was specifically set up
+to do the build. But what does this tell us? Not very much - a reviewer would
+have to not only look at the source code of the build inputs and tools, but
+also the snapshot of the VM, to make sure that it's not doing anything funny.
+
+So now we see that *how* we are able to reproduce a build, matters tremendously
+in how useful this information is. More generally, when we verify a build, we:
+
+1. Reproduce *some* of the universe U from the original build, call this U'.
+2. Run the build on U'.
+3. Verify bit-for-bit reproducibility against original product.
+
+When we run this process across many verifiers, they will all reproduce U', and
+may have different values for { their own U - U' }. The more processes we run,
+the more confidence we gain, that U' is a superset of the minimal information T
+that we actually need to reproduce the build. But even after running this
+process, a human reviewer still has to review U' to check that it contains no
+backdoors: since it was the same across all builds, there is the possibility
+that U' = T and all of it was needed to affect the final build result.
+
+So, it is in our interest (to make verification easier) to reduce U'. If we
+reduce U' such that it is no longer a superset of T, then we will fail to
+reproduce the original build. By running many reproductions with successively
+smaller U' (across many verifiers), we can gain confidence in what T is. Beyond
+that, developers can try to tweak their source code, or the source code of
+their build tools, to reduce T itself down.
+
+As an ideal standard for *all* packages to aim for, T should exactly be the
+source code of the build input and the build tools - i.e. the **preferred form
+for verification** (against backdoors etc) - call this S. To verify a build for
+S-reproducibility, we recursively build the source code of the build tools,
+*not even care about their exact binary result*, use these to build the build
+input, then finally compare our result against the original build 
+product\footnote{Yes, this ignores cyclic-build-dependency and bootstrapping 
+issues.  We'll have to figure this out later, when we actually start to try it.
+One plausible approach is to double-diverse-compile the initial compilers (that
+self-build-depend) using existing binaries. One may think of it like this:
+DDC allows us to verify self-build-depending tools such as compilers, and
+S-reproduction allows us to verify other build products.}. 
+
+In practise, we do not expect most existing packages to meet this standard, and
+our current (2015-12-11) reproducibility tests instead reproduce the entire
+*binary* build tools (i.e. an approximation of the state of the filesystem from
+the original build) when verifying. One has to start somewhere, and proceeding
+one concrete step at a time is better than trying to do too much at once.
+
+As an interesting side note, sometimes though we can do *even better* than
+S-reproducibility:
+
+**Thought experiment 3**. Given `cp` as a build tool, the build output *ought
+to be* reproducible *no matter what the source code or the binary of the
+version of cp that we use is*, assuming that `cp` is correctly implemented.
+
+Of course, this depends entirely on the build process - for example, one does
+not expect different C compilers to generate the same binaries. But if any
+parts of build process are precisely defined like `cp`, then this reduces T
+even further, replacing concrete source code with this smaller definition.
+
+
+Buildinfo files
+===============
+
+Before the above theory was developed, there was confusion on whether buildinfo
+files should be for:
+
+- reproducing the original build product *no matter what*.
+- reproducing using a specific U' that we were using on reproducible.debian.net
+  in practise, that intentionally excluded things like hostname/timestamp but
+  for practical reasons included build path.
+- reproducing using T.
+- reproducing using S.
+
+After developing the above theory, it becomes clear that buildinfo files should
+contain as much information as possible (i.e. of U), of course considering
+storage and distribution costs. Then, it is up to the *verifier* how much of
+this they want to reproduce (U'), depending on what they are aiming for.
+
+This also gives a nice alternative for traditional reasons for including things
+like hostname, timestamp, build path, etc. in the build product - just put it
+in the buildinfo file instead, then you can have this data *and* a bit-for-bit
+reproducible build.
+
+To finally state the definition:
+
+A buildinfo file is a committment from a builder that they executed the build
+with certain parameters, and got a particular binary output with that input.
+The information should contain as much as information as possible, taking into
+account storage and distribution costs, and MUST *attempt to include* **all
+information needed to reproduce that build** (i.e. an over-estimation of T).
+External artefacts MUST be referenced by hash, SHA256 or stronger.
+
+This definition is meant to allow readers of the file to:
+
+- trace the build back to the original builder for debugging purposes
+
+- to re-execute the build, using (subsets of) the information contained in it,
+  and verify the build product
+
+- to calculate the minimal set of information needed to reproduce that build
+  product ("T" from the above section), e.g. via the following strategies:
+
+  - intersect common information from multiple buildinfo files that produce
+    the same build product
+  - iteratively re-execute builds, recreating succesively fewer and fewer
+    information from the original buildinfo file
+
+- to tweak the build input to attempt to reduce the aforementioned minimal set,
+  which may be re-calculated for this new input by running the aforementioned
+  strategies again.
+
+Buildinfo files SHOULD be signed, but there may be rare applications where this
+is not suitable. You should have a very good reason for this, though.
+
+The buildinfo file itself MUST NOT suggest that certain types of build-time
+information are "more important" for reproducibility than other types. We have
+already taken such a position on this matter, but holding that position should
+be the job of the rebuild-verification program. This reduces the complexity of
+the overall ecosystem of reproducibility tools.
